@@ -6697,7 +6697,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, ".task-list-item {\n  display: -webkit-box;\n  display: flex;\n  -webkit-box-pack: justify;\n          justify-content: space-between;\n}\n.task-list-item a {\n  text-decoration: none;\n}\n.task-list-item.editing {\n  box-shadow: inset 0 0 5px #999;\n}\n.task-list-item input, .task-list-item .description {\n  -webkit-box-flex: 1;\n          flex: 1;\n  padding: 0 5px;\n}\n.task-list-item input {\n  border: 0;\n}\n.task-list-item input:focus {\n  outline: none;\n}\n.task-list-item.completed, .task-list-item.completed a {\n  color: #999;\n}\n.task-list-item.completed .description {\n  text-decoration: line-through;\n}", ""]);
+exports.push([module.i, ".task-list-item {\n  display: flex;\n  justify-content: space-between;\n}\n.task-list-item a {\n  text-decoration: none;\n}\n.task-list-item.editing {\n  box-shadow: inset 0 0 5px #999;\n}\n.task-list-item input, .task-list-item .description {\n  flex: 1;\n  padding: 0 5px;\n}\n.task-list-item input {\n  border: 0;\n}\n.task-list-item input:focus {\n  outline: none;\n}\n.task-list-item.completed, .task-list-item.completed a {\n  color: #999;\n}\n.task-list-item.completed .description {\n  text-decoration: line-through;\n}", ""]);
 
 // exports
 
@@ -6716,7 +6716,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, ".new-task-form {\n  display: -webkit-box;\n  display: flex;\n}\n.new-task-form input {\n  margin-right: 10px;\n}\nform > button {\n  white-space: nowrap;\n}", ""]);
+exports.push([module.i, ".new-task-form {\n  display: flex;\n}\n.new-task-form input {\n  margin-right: 10px;\n}\nform > button {\n  white-space: nowrap;\n}", ""]);
 
 // exports
 
@@ -38920,7 +38920,12 @@ function normalizeComponent (
     options._ssrRegister = hook
   } else if (injectStyles) {
     hook = shadowMode
-      ? function () { injectStyles.call(this, this.$root.$options.shadowRoot) }
+      ? function () {
+        injectStyles.call(
+          this,
+          (options.functional ? this.parent : this).$root.$options.shadowRoot
+        )
+      }
       : injectStyles
   }
 
@@ -38929,7 +38934,7 @@ function normalizeComponent (
       // for template-only hot-reload because in that case the render fn doesn't
       // go through the normalizer
       options._injectStyles = hook
-      // register for functioal component in vue file
+      // register for functional component in vue file
       var originalRender = options.render
       options.render = function renderWithStyleInjection (h, context) {
         hook.call(context)
