@@ -1908,10 +1908,11 @@ module.exports = {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _components_TaskList_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./components/TaskList.vue */ "./resources/js/components/TaskList.vue");
-/* harmony import */ var _components_TaskForm_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components/TaskForm.vue */ "./resources/js/components/TaskForm.vue");
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _event_bus_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./event-bus.js */ "./resources/js/event-bus.js");
+/* harmony import */ var _components_TaskList_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./components/TaskList.vue */ "./resources/js/components/TaskList.vue");
+/* harmony import */ var _components_TaskForm_vue__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/TaskForm.vue */ "./resources/js/components/TaskForm.vue");
 //
 //
 //
@@ -1930,27 +1931,29 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   components: {
-    'app-task-list': _components_TaskList_vue__WEBPACK_IMPORTED_MODULE_0__["default"],
-    'app-task-form': _components_TaskForm_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
+    'app-task-list': _components_TaskList_vue__WEBPACK_IMPORTED_MODULE_2__["default"],
+    'app-task-form': _components_TaskForm_vue__WEBPACK_IMPORTED_MODULE_3__["default"]
   },
   data: function data() {
     return {
       name: 'Luis Parrado',
       task_aj: [],
       new_task: '',
-      tasks: []
+      tasks: [],
+      serverErrors: []
     };
   },
   methods: {
     getTasks: function getTasks() {
       var _this = this;
 
-      axios__WEBPACK_IMPORTED_MODULE_2___default.a.get('/api/tasks').then(function (response) {
+      axios__WEBPACK_IMPORTED_MODULE_0___default.a.get('/api/tasks').then(function (response) {
         _this.task_aj = response.data;
 
         _this.task_aj.forEach(function (item) {
@@ -1970,16 +1973,21 @@ __webpack_require__.r(__webpack_exports__);
     createTask: function createTask(task) {
       var _this2 = this;
 
-      axios__WEBPACK_IMPORTED_MODULE_2___default.a.post('/api/tasks', {
+      axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('/api/tasks', {
         title: task.description
       }).then(function (response) {
         _this2.tasks.push(_this2.setTask(response.data.task));
+
+        _event_bus_js__WEBPACK_IMPORTED_MODULE_1__["default"].$emit('isErrors', []);
+      })["catch"](function (error) {
+        _this2.serverErrors = error.response.data.errors.title;
+        _event_bus_js__WEBPACK_IMPORTED_MODULE_1__["default"].$emit('isErrors', _this2.serverErrors);
       });
     },
     deleteCompleted: function deleteCompleted() {
       var _this3 = this;
 
-      axios__WEBPACK_IMPORTED_MODULE_2___default.a["delete"]('/api/tasks').then(function (response) {
+      axios__WEBPACK_IMPORTED_MODULE_0___default.a["delete"]('/api/tasks').then(function (response) {
         _this3.tasks = [];
 
         _this3.getTasks();
@@ -2101,7 +2109,6 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var base_url = window.location.origin;
 /* harmony default export */ __webpack_exports__["default"] = ({
   components: {
     'app-icon': _Icon_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
@@ -2124,7 +2131,7 @@ var base_url = window.location.origin;
     toggleStatus: function toggleStatus() {
       var _this = this;
 
-      axios__WEBPACK_IMPORTED_MODULE_2___default.a.put(base_url + '/api/tasks/' + this.task.id, {
+      axios__WEBPACK_IMPORTED_MODULE_2___default.a.put('/api/tasks/' + this.task.id, {
         status: this.task.pending ? 'completed' : 'pending'
       }).then(function (response) {
         _this.task.pending = !_this.task.pending;
@@ -2138,7 +2145,7 @@ var base_url = window.location.origin;
     update: function update() {
       var _this2 = this;
 
-      axios__WEBPACK_IMPORTED_MODULE_2___default.a.put(base_url + '/api/tasks/' + this.task.id, {
+      axios__WEBPACK_IMPORTED_MODULE_2___default.a.put('/api/tasks/' + this.task.id, {
         title: this.draft
       }).then(function (response) {
         _this2.task.description = _this2.draft;
@@ -2165,6 +2172,7 @@ var base_url = window.location.origin;
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _event_bus__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../event-bus */ "./resources/js/event-bus.js");
 //
 //
 //
@@ -2180,11 +2188,23 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
-      draft: ''
+      draft: '',
+      errors: []
     };
+  },
+  created: function created() {
+    var _this = this;
+
+    _event_bus__WEBPACK_IMPORTED_MODULE_0__["default"].$on('isErrors', function (errors) {
+      _this.errors = errors;
+      if (!_this.errors.length) _this.draft = '';
+    });
   },
   methods: {
     create: function create() {
@@ -2193,7 +2213,7 @@ __webpack_require__.r(__webpack_exports__);
         pending: true,
         editing: false
       });
-      this.draft = '';
+      if (!this.errors.length) this.draft = '';
     }
   }
 });
@@ -38788,7 +38808,8 @@ var render = function() {
               expression: "draft"
             }
           ],
-          staticClass: "form-control rounded-right is-invalid",
+          staticClass: "form-control rounded-right",
+          class: { "is-invalid": _vm.errors.length },
           attrs: { type: "text" },
           domProps: { value: _vm.draft },
           on: {
@@ -38803,9 +38824,11 @@ var render = function() {
         _vm._v(" "),
         _vm._m(0),
         _vm._v(" "),
-        _c("div", { staticClass: "invalid-feedback" }, [
-          _vm._v("\n            Hubo un error\n        ")
-        ])
+        _vm.errors.length
+          ? _c("div", { staticClass: "invalid-feedback" }, [
+              _vm._v(_vm._s(_vm.errors[0]))
+            ])
+          : _vm._e()
       ])
     ]
   )

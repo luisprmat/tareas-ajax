@@ -37,8 +37,6 @@ import EventBus from '../event-bus.js'
 import Icon from './Icon.vue'
 import axios from 'axios'
 
-const base_url = window.location.origin;
-
 export default {
     components: {
         'app-icon': Icon
@@ -59,7 +57,7 @@ export default {
     },
     methods: {
         toggleStatus() {
-            axios.put(base_url + '/api/tasks/' + this.task.id, {
+            axios.put('/api/tasks/' + this.task.id, {
                 status: this.task.pending ? 'completed' : 'pending'
             }).then(response => {
                 this.task.pending = !this.task.pending;
@@ -73,7 +71,7 @@ export default {
             this.editing = true;
         },
         update() {
-            axios.put(base_url + '/api/tasks/' + this.task.id, {
+            axios.put('/api/tasks/' + this.task.id, {
                 title: this.draft
             }).then(response => {
                 this.task.description = this.draft;

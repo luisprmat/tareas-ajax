@@ -17,9 +17,10 @@
 </template>
 
 <script>
+import axios from 'axios'
+import EventBus from './event-bus.js'
 import TaskList from './components/TaskList.vue'
 import TaskForm from './components/TaskForm.vue'
-import axios from 'axios'
 
 export default {
     components: {
@@ -31,7 +32,8 @@ export default {
             name: 'Luis Parrado',
             task_aj: [],
             new_task: '',
-            tasks: []
+            tasks: [],
+            serverErrors: []
         }
     },
     methods: {
@@ -61,6 +63,11 @@ export default {
             })
             .then(response => {
                 this.tasks.push(this.setTask(response.data.task))
+                EventBus.$emit('isErrors', [])
+            })
+            .catch(error => {
+                this.serverErrors = error.response.data.errors.title
+                EventBus.$emit('isErrors', this.serverErrors)
             })
         },
         deleteCompleted() {
